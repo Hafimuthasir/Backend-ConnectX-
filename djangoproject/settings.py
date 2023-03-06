@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
                  os.getenv('BACKEND_IP'),
                  'grapicscard.ga',
                  'www.grapicscard.ga',
-                 ''                 
+                 '127.0.0.1'                 
                  ]
 
 
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'chat',
-    'djapp',
+    'Core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -185,7 +185,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'djapp.User'
+AUTH_USER_MODEL = 'Core.User'
 
 CORS_ORGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True

@@ -1,13 +1,17 @@
 from channels.generic.websocket import WebsocketConsumer
 from .models import Chat,Room
 from asgiref.sync import async_to_sync
-from djapp.models import User
+from Core.models import User
 import json
 import django
 
 django.setup()
 
-class ChatConsumer(WebsocketConsumer):
+class ChatConsumer(WebsocketConsumer):    
+    """
+    A websocket consumer that listens for chat messages from a specific room.
+    """
+
     def connect(self):
         self.roomid = self.scope['url_route']['kwargs']['roomid']
         self.sender = self.scope['url_route']['kwargs']['senderid']

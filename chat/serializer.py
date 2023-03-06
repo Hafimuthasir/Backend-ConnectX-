@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from djapp.serializer import UserSerializers
+from Core.serializer import UserSerializers
 
 
 class RoomSerializer(serializers.ModelSerializer):

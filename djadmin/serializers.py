@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import BussinessRequest,PostReports,PostReportsCount
-from djapp.models import User
-from djapp.serializer import UserSerializers
+from Core.models import User
+from Core.serializer import UserSerializers
 from rest_framework.fields import SerializerMethodField
 
 

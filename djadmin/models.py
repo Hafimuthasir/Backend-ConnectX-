@@ -1,6 +1,5 @@
 from django.db import models
-from djapp.models import Posts,User
-
+from Core.models import Posts,User
 # Create your models here.
 class admins(models.Model):
     user_name = models.CharField(max_length=50)

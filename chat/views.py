@@ -4,56 +4,74 @@ from rest_framework.decorators import api_view
 from .models import *
 from .serializer import *
 from django.db.models import Q
-from djapp.models import Posts
+from Core.models import Posts
+from rest_framework.views import APIView
 
-# Create your views here.
-@api_view(['POST'])
-def getChats(request):
-    print('in get chat',request.data)
-    owner = request.data['primary_user']
-    selectedUser = request.data['secondary_user']
-    if owner == selectedUser:
-        return Response(200)
-    try:
+
+class GetChats(APIView):
+    """
+    POST request to retrieve all the chats between two users.
+    """
+    def post(self, request):
+        owner = request.data.get('primary_user')
+        selectedUser = request.data.get('secondary_user')
+
+        if owner == selectedUser:
+            return Response('Primary and secondary user cannot be same.', status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            rm = Room.objects.get(primary_user=owner,secondary_user=selectedUser)
-            print('in this')
-        except:
-            rm = Room.objects.get(primary_user=selectedUser,secondary_user=owner)
+            try:
+                rm = Room.objects.get(primary_user=owner, secondary_user=selectedUser)
+            except Room.DoesNotExist:
+                rm = Room.objects.get(primary_user=selectedUser, secondary_user=owner)   
+            
+            cht = Chat.objects.filter(room=rm.id)
+            serializer = MessageSerializer(cht, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
-        cht = Chat.objects.filter(room=rm.id)
-        print('jj',cht)
-        serializer = MessageSerializer(cht,many=True)
-        print('sss',serializer.data)
-        return Response(serializer.data)
-    except:
-        serializer = RoomSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(200)
+        except (Room.DoesNotExist, Chat.DoesNotExist):
+            serializer = RoomSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
 
 
 
 
 
-@api_view(['GET'])
-def getChatList(request,id):
-    chatlist  = Room.objects.filter(primary_user=id) | Room.objects.filter(secondary_user = id)
-    serializer = RoomSerializer(chatlist,many=True)
-    return Response(serializer.data)
+class GetChatList(APIView):
+    """
+    GET request to retrieve a list of all chats for a specific user.
+    """
+    def get(self, request, id):
+        try:
+            chatlist = Room.objects.filter(primary_user=id) | Room.objects.filter(secondary_user=id)
+            serializer = RoomSerializer(chatlist, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Room.DoesNotExist:
+            return Response('User has no chats.', status=status.HTTP_404_NOT_FOUND)
 
     
 
-@api_view(['POST'])
-def post_messages(request):
-    serializer = MessageSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(200)
+class PostMessages(APIView):
+    """
+    POST request to create a new chat message.
+    """
+    def post(self, request):
+        serializer = MessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def getChatsByRoom(request,id):
-    chats=Chat.objects.filter(room=id)
-    serializer = MessageSerializer(chats,many=True)
-    return Response(serializer.data)
+class GetChatsByRoom(APIView):
+    """
+    GET request to retrieve all the chats for a specific room.
+    """
+    def get(self, request, id):
+        try:
+            chats = Chat.objects.filter(room=id)
+            serializer = MessageSerializer(chats, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Chat.DoesNotExist:
+            return Response('No chats for the room.', status=status.HTTP_404_NOT_FOUND)

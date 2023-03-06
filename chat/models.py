@@ -1,5 +1,5 @@
 from django.db import models
-from djapp.models import User
+from Core.models import User
 # Create your models here.
 
 class Room(models.Model):
